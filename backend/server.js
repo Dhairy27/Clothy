@@ -17,7 +17,7 @@ app.use(express.static(path.join(__dirname, '../frontend')));
 app.use('/sources', express.static(path.join(__dirname, '../sources')));
 
 // Initialize MongoDB connection
-const mongoUrl = process.env.MONGODB_URL || 'mongodb+srv://Dhairy27:<db_password>@cluster0.llosvz3.mongodb.net/';
+const mongoUrl = process.env.MONGODB_URL || 'mongodb+srv://Dhairy27:<db_password>@cluster0.llosvz3.mongodb.net/?appName=Cluster0';
 const client = new MongoClient(mongoUrl);
 let db;
 

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Login - Clothy</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav class="navbar">
+  <h2>Clothy Admin</h2>
+  <div>
+    <a href="index.html">Store</a>
+    <a href="collection.html">Collection</a>
+    <a href="admin-login.html" class="admin-active">Admin Login</a>
+    <a href="cart.html" class="cart-link">
+      Cart 
+      <span id="cart-count" class="cart-count">0</span>
+    </a>
+  </div>
+</nav>
+
+<section class="auth-page">
+  <div class="auth-container">
+    <div class="auth-card">
+      <div class="auth-header">
+        <h1>🔐 Admin Access</h1>
+        <p>Login to admin dashboard</p>
+      </div>
+      
+      <form class="auth-form" onsubmit="handleAdminLogin(event)">
+        <div class="form-group">
+          <label for="username">Username</label>
+          <input type="text" id="username" name="username" required placeholder="Enter username">
+        </div>
+        
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" required placeholder="Enter password">
+        </div>
+        
+        <button type="submit" class="auth-btn">Login to Admin</button>
+      </form>
+      
+      <div class="auth-footer">
+        <p><a href="index.html" class="auth-link">← Back to Store</a></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p>© 2026 Clothy Admin | Secure Access</p>
+</footer>
+
+<script src="script.js"></script>
+<script>
+  function handleAdminLogin(event) {
+    event.preventDefault();
+    
+    // Check if already logged in to prevent loop
+    const adminToken = sessionStorage.getItem('adminToken');
+    if (adminToken) {
+      alert('Already logged in as admin! Redirecting to admin panel...');
+      window.location.href = 'admin.html';
+      return;
+    }
+    
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+    
+    // Simple admin authentication (username: d, password: d)
+    if (username === 'd' && password === 'd') {
+      // Store admin session with a mock token in sessionStorage (cleared on browser close)
+      sessionStorage.setItem('adminLoggedIn', 'true');
+      sessionStorage.setItem('adminUser', username);
+      sessionStorage.setItem('adminToken', 'admin-mock-token-' + Date.now());
+      
+      // Simple alert for success
+      alert('Admin login successful! Redirecting to admin panel...');
+      
+      // Redirect to admin panel after 2 seconds
+      setTimeout(() => {
+        window.location.href = 'admin.html';
+      }, 2000);
+    } else {
+      // Simple alert for failure
+      alert('Invalid credentials! Access denied. Please try again.');
+      // Clear password field
+      document.getElementById('password').value = '';
+    }
+  }
+  
+  // Check if already logged in as admin
+  document.addEventListener('DOMContentLoaded', function() {
+    const adminToken = sessionStorage.getItem('adminToken');
+    if (adminToken) {
+      // Redirect immediately without alert to prevent loop
+      window.location.href = 'admin.html';
+    }
+    
+    // Add browser close detection for automatic admin logout
+    setupAdminBrowserCloseDetection();
+  });
+  
+  // Setup browser close detection to clear admin sessions on browser close
+  function setupAdminBrowserCloseDetection() {
+    // Set a flag when page is loaded
+    sessionStorage.setItem('adminBrowserSessionActive', 'true');
+    
+    // Clear admin sessions when browser is closing
+    window.addEventListener('beforeunload', function(e) {
+      // Only clear if this is actually browser close, not page navigation
+      setTimeout(() => {
+        // This won't execute if browser is closing
+        sessionStorage.setItem('adminBrowserSessionActive', 'false');
+      }, 100);
+      
+      // Check if we have any active session storage indicating browser is still open
+      const isActive = sessionStorage.getItem('adminBrowserSessionActive');
+      if (isActive === 'true') {
+        // Browser is closing, clear admin sessions
+        sessionStorage.removeItem('adminLoggedIn');
+        sessionStorage.removeItem('adminUser');
+        sessionStorage.removeItem('adminToken');
+      }
+    });
+    
+    // Handle page visibility changes for admin
+    document.addEventListener('visibilitychange', function() {
+      if (document.visibilityState === 'visible') {
+        // Page is visible again, update session state
+        sessionStorage.setItem('adminBrowserSessionActive', 'true');
+      }
+    });
+  }
+</script>
+</body>
+</html>

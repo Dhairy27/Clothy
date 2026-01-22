@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>UPI QR Code Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 8px; }
+        .upi-details { background: #f8f9fa; padding: 20px; border-radius: 8px; border: 1px solid #dee2e6; }
+        .qr-section { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 15px; }
+        .qr-code { width: 150px; height: 150px; background: white; border: 2px solid #ddd; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; overflow: hidden; margin: 0 auto; }
+    </style>
+</head>
+<body>
+    <h1>UPI QR Code Feature Test</h1>
+    
+    <div class="test-section">
+        <h3>UPI Payment Details with QR Code</h3>
+        <div class="upi-details">
+            <h4 style="margin-bottom: 15px; color: #333;">📱 UPI Payment Details</h4>
+            
+            <div class="qr-section">
+                <!-- UPI Details -->
+                <div style="background: white; padding: 15px; border-radius: 6px;">
+                    <div style="font-weight: 600; color: #667eea; margin-bottom: 8px;">UPI ID:</div>
+                    <div style="font-size: 18px; color: #333; font-weight: 500;">6352047745@slc</div>
+                    <div style="font-size: 14px; color: #666; margin-top: 5px;">Name: Janjarukia Dhairy Alpeshbhai</div>
+                </div>
+                
+                <!-- QR Code -->
+                <div style="background: white; padding: 15px; border-radius: 6px; text-align: center;">
+                    <div style="font-weight: 600; color: #667eea; margin-bottom: 10px;">Scan QR Code</div>
+                    <div id="upi-qr-code" class="qr-code">
+                        <!-- QR Code will be generated here -->
+                        <div style="position: absolute; top: 10px; left: 10px; width: 30px; height: 30px; background: #333;"></div>
+                        <div style="position: absolute; top: 10px; right: 10px; width: 30px; height: 30px; background: #333;"></div>
+                        <div style="position: absolute; bottom: 10px; left: 10px; width: 30px; height: 30px; background: #333;"></div>
+                        <div style="position: absolute; top: 50px; left: 50px; width: 50px; height: 50px; background: #333; border-radius: 4px;"></div>
+                        <div style="position: absolute; top: 60px; left: 60px; width: 30px; height: 30px; background: white;"></div>
+                        <div style="position: absolute; top: 70px; left: 70px; width: 10px; height: 10px; background: #333;"></div>
+                        
+                        <div style="position: absolute; bottom: 5px; left: 0; right: 0; text-align: center; font-size: 8px; color: #666; background: rgba(255,255,255,0.9); padding: 2px;">
+                            UPI QR
+                        </div>
+                    </div>
+                    <div style="font-size: 12px; color: #666; margin-top: 8px;">Scan with any UPI app</div>
+                </div>
+            </div>
+            
+            <div style="margin-top: 15px;">
+                <label style="font-weight: 600; color: #555;">UTR Number (12-digit Transaction ID)</label><br>
+                <input type="text" placeholder="Enter 12-digit UTR number" maxlength="12" 
+                       style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 5px; font-size: 16px; margin-top: 5px;">
+                <small style="color: #666; font-size: 12px;">Please enter the 12-digit UTR number after completing the UPI payment</small>
+            </div>
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h3>QR Code Features ✅</h3>
+        <ul>
+            <li>✅ QR code automatically generated for UPI ID: 6352047745@slc</li>
+            <li>✅ QR code contains UPI URL format for direct payment</li>
+            <li>✅ Fallback QR code display if external service fails</li>
+            <li>✅ Professional layout with UPI details side by side</li>
+            <li>✅ QR code sized appropriately (150x150px)</li>
+            <li>✅ Clear instructions for users</li>
+        </ul>
+    </div>
+    
+    <div class="test-section">
+        <h3>How QR Code Works</h3>
+        <ol>
+            <li>User selects "📱 UPI Payment" during checkout</li>
+            <li>QR code is automatically generated and displayed</li>
+            <li>User scans QR code with any UPI app (PhonePe, GPay, Paytm, etc.)</li>
+            <li>UPI app opens with payment details pre-filled</li>
+            <li>User completes payment and enters UTR number</li>
+            <li>UTR is stored with order for reference</li>
+        </ol>
+    </div>
+    
+    <div class="test-section">
+        <h3>UPI QR Code Data Format</h3>
+        <p>The QR code contains the following UPI URL:</p>
+        <code style="background: #f0f0f0; padding: 5px; border-radius: 3px; display: block; margin: 10px 0;">
+            upi://pay?pa=6352047745@slc&pn=Janjarukia%20Dhairy%20Alpeshbhai&am=&cu=INR
+        </code>
+        <p>This format is compatible with all major UPI applications in India.</p>
+    </div>
+    
+    <script>
+        // Test QR code generation
+        function generateUPIQRCode() {
+            const qrContainer = document.getElementById('upi-qr-code');
+            if (!qrContainer) return;
+            
+            const upiId = '6352047745@slc';
+            const payeeName = 'Janjarukia Dhairy Alpeshbhai';
+            const amount = '';
+            const currency = 'INR';
+            
+            const upiUrl = `upi://pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent(payeeName)}&am=${amount}&cu=${currency}`;
+            
+            console.log('UPI QR Code URL:', upiUrl);
+            
+            // Try to load actual QR code from external service
+            const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(upiUrl)}`;
+            const img = new Image();
+            img.onload = function() {
+                qrContainer.innerHTML = `<img src="${qrImageUrl}" alt="UPI QR Code" style="width: 150px; height: 150px; border-radius: 8px;">`;
+                console.log('Actual QR code loaded successfully');
+            };
+            img.onerror = function() {
+                console.log('QR code service unavailable, using fallback');
+                // Fallback is already displayed
+            };
+            img.src = qrImageUrl;
+        }
+        
+        // Generate QR code on page load
+        generateUPIQRCode();
+    </script>
+</body>
+</html>

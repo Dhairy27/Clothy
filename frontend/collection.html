@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Collection - Clothy Store</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav class="navbar">
+  <h2>Clothy</h2>
+  <div>
+    <a href="index.html">Home</a>
+    <a href="collection.html" class="active">Collection</a>
+    <a href="cart.html" class="cart-link">
+      Cart 
+      <span id="cart-count" class="cart-count">0</span>
+    </a>
+
+    <a href="admin-login.html" class="admin-btn admin-btn-hidden">Admin</a>
+    
+    <!-- User Profile Dropdown (shown when logged in) -->
+    <div class="profile-dropdown" id="user-profile-dropdown" class="profile-dropdown-hidden">
+      <button class="profile-btn" onclick="toggleUserProfileDropdown()">
+        <span class="profile-avatar">👤</span>
+        <span id="user-profile-username">User</span>
+        <span class="dropdown-arrow">▼</span>
+      </button>
+      <div id="user-profile-menu" class="profile-menu">
+        <div class="profile-header">
+          <div class="profile-info">
+            <h4 id="user-profile-name">User Name</h4>
+            <p id="user-profile-email">user@example.com</p>
+          </div>
+        </div>
+        <div class="profile-actions">
+          <a href="#" onclick="showUserProfileDetails()" class="profile-link view-profile">📋 View Profile</a>
+          <a href="#" onclick="userLogout()" class="profile-link logout">🚪 Logout</a>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Login Button (shown when not logged in) -->
+    <a href="login.html" id="login-link" class="login-btn-special">Login</a>
+  </div>
+</nav>
+
+<section class="collection-page">
+  <div class="collection-header">
+    <h1>Our Collection</h1>
+    <p>Discover our premium fashion collection organized by categories</p>
+  </div>
+
+  <!-- Category Filter -->
+  <div class="category-filter">
+    <div class="filter-tabs">
+      <button class="category-tab active" onclick="filterByCategory('all')">All Collection</button>
+      <!-- Categories will be dynamically added here -->
+    </div>
+    <div class="search-box">
+      <input type="text" id="collection-search" placeholder="Search collection..." onkeyup="searchCollection()">
+      <button onclick="searchCollection()">🔍</button>
+    </div>
+  </div>
+
+  <!-- Collection Container -->
+  <div id="collection-container">
+    <div class="loading">Loading collection...</div>
+  </div>
+
+  <!-- No Collection Message -->
+  <div id="no-collection" class="no-collection" style="display: none;">
+    <h3>No collection found</h3>
+    <p>Try adjusting your search or filter criteria</p>
+    <button onclick="filterByCategory('all')" class="btn">View All Collection</button>
+  </div>
+</section>
+
+<footer>
+  <p>© 2026 Clothy | Fashion Redefined</p>
+</footer>
+
+<script src="script.js"></script>
+<script>
+// Collection page specific functionality
+let allCollection = [];
+let currentCategory = 'all';
+
+// Load collection when page loads
+document.addEventListener('DOMContentLoaded', function() {
+  checkUserLoginStatus();
+  loadCollection();
+  updateCartCount();
+});
+
+// Load all collection from API
+async function loadCollection() {
+  try {
+    const response = await fetch('/api/products');
+    if (!response.ok) {
+      throw new Error('Failed to fetch collection');
+    }
+    allCollection = await response.json();
+    
+    // Populate category tabs
+    populateCategories();
+    
+    // Display all collection initially
+    displayCollection(allCollection);
+  } catch (error) {
+    console.error('Error loading collection:', error);
+    document.getElementById('collection-container').innerHTML = 
+      '<div class="error">Failed to load collection. Please try again later.</div>';
+  }
+}
+
+// Populate category tabs dynamically
+function populateCategories() {
+  const categories = [...new Set(allCollection.map(p => p.category))].sort();
+  const filterTabs = document.querySelector('.filter-tabs');
+  
+  // Clear existing tabs except "All Collection"
+  filterTabs.innerHTML = '<button class="category-tab active" onclick="filterByCategory(\'all\')">All Collection</button>';
+  
+  // Add category tabs
+  categories.forEach(category => {
+    const tab = document.createElement('button');
+    tab.className = 'category-tab';
+    tab.textContent = category;
+    tab.onclick = () => filterByCategory(category);
+    filterTabs.appendChild(tab);
+  });
+}
+
+// Filter collection by category
+function filterByCategory(category) {
+  currentCategory = category;
+  
+  // Update active tab
+  document.querySelectorAll('.category-tab').forEach(tab => {
+    tab.classList.remove('active');
+    if (tab.textContent.toLowerCase() === category.toLowerCase() || 
+        (category === 'all' && tab.textContent === 'All Collection')) {
+      tab.classList.add('active');
+    }
+  });
+  
+  // Filter collection
+  let filteredCollection = allCollection;
+  if (category !== 'all') {
+    filteredCollection = allCollection.filter(p => p.category === category);
+  }
+  
+  displayCollection(filteredCollection);
+}
+
+// Search collection
+function searchCollection() {
+  const searchTerm = document.getElementById('collection-search').value.toLowerCase();
+  
+  let filteredCollection = allCollection;
+  
+  // Apply category filter first
+  if (currentCategory !== 'all') {
+    filteredCollection = filteredCollection.filter(p => p.category === currentCategory);
+  }
+  
+  // Apply search filter
+  if (searchTerm) {
+    filteredCollection = filteredCollection.filter(p => 
+      p.name.toLowerCase().includes(searchTerm) ||
+      p.description.toLowerCase().includes(searchTerm) ||
+      p.category.toLowerCase().includes(searchTerm)
+    );
+  }
+  
+  displayCollection(filteredCollection);
+}
+
+// Display collection with category sections
+function displayCollection(collection) {
+  const container = document.getElementById('collection-container');
+  const noCollection = document.getElementById('no-collection');
+  
+  if (!collection || collection.length === 0) {
+    container.innerHTML = '';
+    noCollection.style.display = 'block';
+    return;
+  }
+  
+  noCollection.style.display = 'none';
+  
+  // Group collection by category
+  const collectionByCategory = collection.reduce((acc, item) => {
+    if (!acc[item.category]) {
+      acc[item.category] = [];
+    }
+    acc[item.category].push(item);
+    return acc;
+  }, {});
+  
+  let html = '';
+  
+  // Display each category section
+  Object.keys(collectionByCategory).forEach(category => {
+    html += `
+      <div class="category-section">
+        <div class="category-header">
+          <h2>${category}</h2>
+          <span class="collection-count">${collectionByCategory[category].length} items</span>
+        </div>
+        <div class="collection-grid">
+    `;
+    
+    collectionByCategory[category].forEach(item => {
+      html += `
+        <div class="collection-card">
+          <div class="collection-image">
+            <img src="${item.image ? item.image.replace(/\\/g, '/') : 'https://via.placeholder.com/300x300?text=No+Image'}" 
+                 alt="${item.name}" 
+                 onerror="this.src='https://via.placeholder.com/300x300?text=No+Image'">
+            <div class="collection-overlay">
+              <button class="quick-view-btn" onclick="quickView('${item._id || item.id}')">Quick View</button>
+            </div>
+          </div>
+          <div class="collection-info">
+            <h3>${item.name}</h3>
+            <p class="collection-category">${item.category}</p>
+            <p class="collection-description">${item.description || 'No description available'}</p>
+            <div class="collection-price">
+              <span class="current-price">₹${item.price}</span>
+            </div>
+            <div class="collection-stock">
+              ${item.stock > 0 ? 
+                `<span class="in-stock">In Stock (${item.stock})</span>` : 
+                '<span class="out-stock">Out of Stock</span>'
+              }
+            </div>
+            <div class="collection-actions">
+              <button class="btn add-to-cart-btn" onclick="addToCart('${item.name}', ${item.price})" 
+                      ${item.stock <= 0 ? 'disabled' : ''}>
+                ${item.stock > 0 ? 'Add to Cart' : 'Out of Stock'}
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+    });
+    
+    html += `
+        </div>
+      </div>
+    `;
+  });
+  
+  container.innerHTML = html;
+}
+
+// Quick view functionality (placeholder)
+function quickView(itemId) {
+  const item = allCollection.find(p => (p._id || p.id) === itemId);
+  if (item) {
+    showNotification(`Quick view: ${item.name} - Feature coming soon!`);
+  }
+}
+</script>
+
+</body>
+</html>

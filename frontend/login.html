@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - Clothy</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav class="navbar">
+  <h2>Clothy</h2>
+  <div>
+    <a href="index.html">Home</a>
+    <a href="collection.html">Collection</a>
+    <a href="cart.html" class="cart-link">
+      Cart 
+      <span id="cart-count" class="cart-count">0</span>
+    </a>
+    <a href="login.html" id="login-link" class="login-btn-special">Login</a>
+  </div>
+</nav>
+
+<section class="auth-page">
+  <div class="auth-container">
+    <div class="auth-card">
+      <div class="auth-header">
+        <h1>Welcome Back</h1>
+        <p>Login to access your account</p>
+      </div>
+      
+      <form class="auth-form" onsubmit="handleLogin(event)">
+        <div class="form-group">
+          <label for="email">Email Address</label>
+          <input type="email" id="email" name="email" required placeholder="Enter your email">
+        </div>
+        
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" required placeholder="Enter your password">
+        </div>
+        
+        <div class="form-options">
+          <label class="checkbox-label">
+            <input type="checkbox" name="remember">
+            <span class="checkmark"></span>
+            Remember me
+          </label>
+          <a href="#" class="forgot-link">Forgot password?</a>
+        </div>
+        
+        <button type="submit" class="auth-btn">Login</button>
+      </form>
+      
+      <div class="auth-divider">
+        <span>OR</span>
+      </div>
+      
+      <div class="social-login">
+        <button class="social-btn google-btn" onclick="socialLogin('google')">
+          <svg width="18" height="18" viewBox="0 0 24 24">
+            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+          </svg>
+          Continue with Google
+        </button>
+        
+        <button class="social-btn facebook-btn" onclick="socialLogin('facebook')">
+          <svg width="18" height="18" viewBox="0 0 24 24">
+            <path fill="#1877F2" d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+          </svg>
+          Continue with Facebook
+        </button>
+      </div>
+      
+      <div class="auth-footer">
+        <p>Don't have an account? <a href="signup.html" class="auth-link">Sign up</a></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p> 2026 Clothy | Fashion Redefined</p>
+</footer>
+
+<script src="script.js"></script>
+<script>
+  async function handleLogin(event) {
+    event.preventDefault();
+    
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    const remember = document.querySelector('input[name="remember"]').checked;
+    
+    try {
+      const response = await fetch('/api/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email, password })
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok) {
+        // Store authentication token and user data in sessionStorage only (cleared on browser close)
+        sessionStorage.setItem('token', data.token);
+        sessionStorage.setItem('userData', JSON.stringify(data.user));
+        
+        // If remember me is checked, also store in localStorage for persistence
+        if (remember) {
+          localStorage.setItem('token', data.token);
+          localStorage.setItem('userData', JSON.stringify(data.user));
+        }
+        
+        showNotification('Login successful! Redirecting to home...');
+        
+        // Redirect to home page after 2 seconds
+        setTimeout(() => {
+          window.location.href = 'index.html';
+        }, 2000);
+      } else {
+        showNotification('Login failed: ' + (data.error || 'Invalid credentials'));
+        // Clear password field on error
+        document.getElementById('password').value = '';
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      showNotification('Login failed. Please try again.');
+    }
+  }
+  
+  function socialLogin(provider) {
+    showNotification(`Connecting to ${provider}...`);
+    // In real app, this would handle OAuth authentication
+    setTimeout(() => {
+      showNotification(`${provider} login simulated!`);
+    }, 1500);
+  }
+  
+  // Check if user is already logged in
+  document.addEventListener('DOMContentLoaded', function() {
+    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+    const userData = localStorage.getItem('userData') || sessionStorage.getItem('userData');
+    const user = userData ? JSON.parse(userData) : {};
+    
+    if (token && user.email) {
+      showNotification('You are already logged in! Redirecting to home...');
+      setTimeout(() => {
+        window.location.href = 'index.html';
+      }, 2000);
+    }
+    updateCartCount();
+    updateProfileUI();
+    
+    // Add browser close detection for automatic logout
+    setupBrowserCloseDetection();
+  });
+  
+  // Setup browser close detection to clear localStorage on browser close
+  function setupBrowserCloseDetection() {
+    // Set a flag when page is loaded
+    sessionStorage.setItem('browserSessionActive', 'true');
+    
+    // Clear localStorage when browser is closing (not just navigating away)
+    window.addEventListener('beforeunload', function(e) {
+      // Only clear if this is actually browser close, not page navigation
+      // We use a small timeout to distinguish between navigation and close
+      setTimeout(() => {
+        // This won't execute if browser is closing
+        sessionStorage.setItem('browserSessionActive', 'false');
+      }, 100);
+      
+      // Check if we have any active session storage indicating browser is still open
+      const isActive = sessionStorage.getItem('browserSessionActive');
+      if (isActive === 'true') {
+        // Browser is closing, clear localStorage
+        localStorage.clear();
+      }
+    });
+    
+    // Handle page visibility changes
+    document.addEventListener('visibilitychange', function() {
+      if (document.visibilityState === 'hidden') {
+        // Page is hidden, might be closing or switching tabs
+        sessionStorage.setItem('pageHidden', Date.now().toString());
+      } else if (document.visibilityState === 'visible') {
+        // Page is visible again, update session state
+        sessionStorage.setItem('browserSessionActive', 'true');
+      }
+    });
+  }
+</script>
+</body>
+</html>

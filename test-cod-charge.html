@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>COD Charge Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-order { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 8px; }
+    </style>
+</head>
+<body>
+    <h1>COD Charge Display Test</h1>
+    
+    <div id="test-results"></div>
+    
+    <script>
+        // Simulate the order data structure
+        const testOrder = {
+            _id: "696b97b9087cec06ede42f2f",
+            userId: "696a0623b03c8331e78da55d",
+            totalAmount: 2148,
+            status: "pending",
+            paymentMethod: "cod",
+            createdAt: "2026-01-17T14:07:53.534Z",
+            items: [
+                {
+                    _id: "696b97b9087cec06ede42f30",
+                    productName: "Purple Check Shirt",
+                    price: 1039,
+                    quantity: 1,
+                    total: 1039
+                },
+                {
+                    _id: "696b97b9087cec06ede42f31",
+                    productName: "Yellow Check Shirt",
+                    price: 1099,
+                    quantity: 1,
+                    total: 1099
+                }
+            ]
+        };
+        
+        // Function to display order items (same logic as profile.html)
+        function displayOrderItems(order) {
+            const orderItems = order.items || [];
+            
+            // Format order items for display
+            let itemsForDisplay = [...orderItems];
+            
+            // Check if this is a COD order and if COD charge is not already included as an item
+            const isCODOrder = order.paymentMethod === 'cod';
+            const hasCODChargeItem = orderItems.some(item => item.productName === 'Cash on Delivery Charge');
+            
+            if (isCODOrder && !hasCODChargeItem) {
+                // Add COD charge for display purposes for existing orders
+                itemsForDisplay.push({
+                    productName: 'Cash on Delivery Charge',
+                    price: 10,
+                    quantity: 1,
+                    total: 10,
+                    isVirtualCODCharge: true // Mark as virtual for styling
+                });
+            }
+            
+            const itemsHTML = itemsForDisplay.map(item => {
+                // Check if this is a COD charge item (either real or virtual)
+                const isCODCharge = item.productName === 'Cash on Delivery Charge';
+                const itemStyle = isCODCharge ? 
+                    'display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; padding: 8px; background: #fff3cd; border-left: 3px solid #ffc107; border-radius: 4px;' :
+                    'display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; padding: 8px; background: #f8f9fa; border-radius: 4px;';
+                
+                const productNameStyle = isCODCharge ? 
+                    'font-weight: 600; color: #856404;' : 
+                    'font-weight: 500; color: #333;';
+                
+                const priceColor = isCODCharge ? '#856404' : '#667eea';
+                const totalColor = isCODCharge ? '#856404' : '#28a745';
+                
+                return `
+                <div style="${itemStyle}">
+                    <div style="flex: 1;">
+                        <div style="${productNameStyle}">${isCODCharge ? '💵 ' + item.productName : (item.productName || 'Unknown Product')}</div>
+                        <div style="font-size: 12px; color: #666;">Qty: ${item.quantity || 0}</div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-weight: 600; color: ${priceColor};">₹${item.price || 0}</div>
+                        <div style="font-size: 12px; color: ${totalColor};">₹${item.total || (item.price * item.quantity) || 0}</div>
+                    </div>
+                </div>
+            `;
+            }).join('');
+            
+            return itemsHTML;
+        }
+        
+        // Display the test
+        document.getElementById('test-results').innerHTML = `
+            <div class="test-order">
+                <h3>Order ID: #${testOrder._id}</h3>
+                <p><strong>Payment Method:</strong> ${testOrder.paymentMethod.toUpperCase()}</p>
+                <p><strong>Total Amount:</strong> ₹${testOrder.totalAmount}</p>
+                <h4>Order Items:</h4>
+                ${displayOrderItems(testOrder)}
+                <div style="border-top: 2px solid #dee2e6; padding-top: 10px; margin-top: 10px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span style="font-weight: 600; color: #333;">Order Total:</span>
+                        <span style="font-weight: 700; color: #667eea; font-size: 18px;">₹${testOrder.totalAmount}</span>
+                    </div>
+                </div>
+            </div>
+        `;
+    </script>
+</body>
+</html>

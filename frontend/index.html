@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Clothy Store</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav class="navbar">
+  <h2>Clothy</h2>
+  
+  <!-- Search Bar -->
+  <div class="nav-search-container">
+    <input type="text" id="nav-search-input" placeholder="Search products..." class="nav-search-input">
+    <button class="nav-search-btn" onclick="performNavSearch()">🔍</button>
+    <div id="nav-search-results" class="nav-search-results"></div>
+  </div>
+  
+  <div>
+    <a href="index.html" class="active">Home</a>
+    <a href="collection.html">Collection</a>
+    <a href="cart.html" class="cart-link">
+      Cart 
+      <span id="cart-count" class="cart-count">0</span>
+    </a>
+    
+    <a href="admin-login.html" class="admin-btn" style="display: none;">Admin</a>
+    
+    <!-- User Profile Dropdown (shown when logged in) -->
+    <div class="profile-dropdown" id="user-profile-dropdown" style="display: none;">
+      <button class="profile-btn" onclick="toggleUserProfileDropdown()">
+        <span class="profile-avatar">👤</span>
+        <span id="user-profile-username">User</span>
+        <span class="dropdown-arrow">▼</span>
+      </button>
+      <div id="user-profile-menu" class="profile-menu">
+        <div class="profile-header">
+          <div class="profile-info">
+            <h4 id="user-profile-name">User Name</h4>
+            <p id="user-profile-email">user@example.com</p>
+          </div>
+        </div>
+        <div class="profile-actions">
+          <a href="profile.html" class="profile-link view-profile">📋 View Profile</a>
+          <a href="#" onclick="userLogout()" class="profile-link logout">🚪 Logout</a>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Login Button (shown when not logged in) -->
+    <a href="login.html" id="login-link" class="login-btn-special">Login</a>
+  </div>
+</nav>
+
+<section class="hero">
+  <h1>Upgrade Your Style</h1>
+  <p>Premium Fashion • Best Price</p>
+  <a href="collection.html" class="btn">Shop Now</a>
+</section>
+
+<section class="quick-order">
+  <div class="quick-order-header">
+    <h2>⚡ Quick Order</h2>
+    <p>Products running low on stock - Order now before they're gone!</p>
+  </div>
+  <div id="quick-order-container">
+    <div class="loading">Loading low stock products...</div>
+  </div>
+</section>
+
+<section class="features">
+  <div class="feature-grid">
+    <div class="feature-card">
+      <h3>👕 Premium Quality</h3>
+      <p>High-quality fabrics and materials for lasting comfort</p>
+    </div>
+    <div class="feature-card">
+      <h3>💰 Best Prices</h3>
+      <p>Affordable fashion without compromising on quality</p>
+    </div>
+    <div class="feature-card">
+      <h3>🚚 Fast Delivery</h3>
+      <p>Quick and reliable delivery to your doorstep</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p>© 2026 Clothy | Fashion Redefined</p>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>
